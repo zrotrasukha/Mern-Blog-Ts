@@ -34,7 +34,7 @@ export default function LoginPage() {
           onChange={(e) => setUsername(e.target.value)}
         />
         <input
-          type="text"
+          type="password"
           placeholder="password"
           className="rounded-md px-3 py-1 text-black outline-none border-black border-2"
           value={password}
