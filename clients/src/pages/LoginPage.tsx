@@ -1,31 +1,53 @@
 import { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
+import bcrypt from "bcrypt";
+const saltRound = 10;
 
 export default function LoginPage() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  async function register(e: React.FormEvent<HTMLFormElement>) {
+  async function register(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
 
-    const userData: { username: string; password: string } = { username, password };
+    let hashedPass: string | undefined;
+
+    try {
+      hashedPass = await bcrypt.hash(password, saltRound);
+    } catch (err) {
+      console.log("Error occured while hashing: ", err);
+      return;
+    }
+
+    if (!hashedPass) {
+      console.error("Failed to hash password");
+      return;
+    }
+
+    const userData: { username: string; password: string } = {
+      username,
+      password: hashedPass,
+    };
+
     const url: string = "http://localhost:4000/register";
 
     try {
       const response = await axios.post(url, userData, {
-        headers: { 'Content-Type': "application/json" },
+        headers: { "Content-Type": "application/json" },
       });
       console.log(response.data);
-
     } catch (err) {
-      console.error('something wrong occured: ', err);
+      console.error("something wrong occured: ", err);
     }
   }
 
   return (
     <div className="h-screen -mt-20 w-full flex flex-col items-center justify-center">
       <h1 className="text-5xl font-bold mb-5">Login</h1>
-      <form className="flex flex-col w-[60vw] max-w-[600px] gap-1" onSubmit={register}>
+      <form
+        className="flex flex-col w-[60vw] max-w-[600px] gap-1"
+        onSubmit={register}
+      >
         <input
           type="text"
           placeholder="username"
